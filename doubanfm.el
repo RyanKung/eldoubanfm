@@ -1,3 +1,7 @@
+;;Installation:
+;;In .emacs add:
+;;(require 'doubanfm)
+
 (dolist (path-list (list "./lib/"
                          "./lib/http-emacs"
                          "./lib/emms-3.0"))
@@ -10,9 +14,9 @@
 (emms-default-players)
 (defvar playlist_url
   "http://api.douban.com/v2/fm/playlist?type=n&channel=27&app_name=pldoubanfms&version=2&sid=0")
+(defvar length 0)
 
 (defun event (process message)
-  (set 'length 0)
   (set 'currbuf (buffer-name (current-buffer)))
   (switch-to-buffer "listbuffer")
   (set 'data (buffer-string))
@@ -27,14 +31,12 @@
     (if (string-equal (car slst) "url")
         (emms-add-url (cdr slst)))
     (if (string-equal (car slst) "length")
-        (+ length (number (car slst)))
-      )
-    (emms-start)
-    (sleep-for length)
-    (http-get playlist_url nil 'event nil "listbuffer")))
+        (set 'length (+ length (cdr slst)))))
+  (emms-start))
 
-(defun start()
+(defun get-play-list()
   (http-get playlist_url nil 'event nil "listbuffer"))
 
-(start)
+(defun play-fm ()
+  (get-play-list))
 (provide 'doubanfm)
