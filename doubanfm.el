@@ -1,47 +1,58 @@
-;;Installation:
-;;In .emacs add:
-;;(require 'doubanfm)
+;; Installation:
+;; In .emacs add:
+;; (require 'doubanfm)
 
 (dolist (path-list (list "./lib/"
                          "./lib/http-emacs"
                          "./lib/emms-3.0"))
   (add-to-list 'load-path
                (expand-file-name path-list (file-name-directory load-file-name))))
+
 (require 'emms-setup)
 (require 'http-get)
 (require 'json)
 (emms-standard)
 (emms-default-players)
 (defvar playlist_url
-  "http://api.douban.com/v2/fm/playlist?type=n&channel=27&app_name=pldoubanfms&version=2&sid=0&apikey=Key0c57daf39b62cfbf250790dad2286f3d")
+  "http://api.douban.com/v2/fm/playlist?type=n&channel=%s&app_name=pldoubanfms&version=2&sid=0&apikey=Key0c57daf39b62cfbf250790dad2286f3d")
+(defvar default-channel 27)
 (defvar length 0)
 
 (defun event (process message)
+  (parse-data))
+
+(defun parse-data () 
   (set 'currbuf (buffer-name (current-buffer)))
-  (switch-to-buffer "listbuffer")
+  (switch-to-buffer "songs")
   (set 'data (buffer-string))
   (switch-to-buffer currbuf)
-  (set 'songs (cdr (car (json-read-from-string data))))
-  (mapcar (lambda (x) 
-            (dolist (slst x)
-              (if (string-equal (car slst) "url")
-                  (emms-add-url (cdr slst)))
-              (if (string-equal (car slst) "length")
-                  (set 'length (+ length (cdr slst))))
-                )) songs)
-  (emms-start))
+  (set 'data (json-read-from-string data))
+  (set 'songs (cdr (car data)))
+  (if (equal (safe-length songs) 0)
+      (print (format "Api error:%s" data))
+      (mapcar (lambda (x)
+                (dolist (slst x)
+                  (if (string-equal (car slst) "url")
+                      (emms-add-url (cdr slst)))
+                  (if (string-equal (car slst) "length")
+                      (set 'length (+ length (cdr slst))))
+                  )) songs)))
 
-(defun get-play-list()
-  (http-get playlist_url nil 'event nil "listbuffer"))
+(defun get-play-list (&optional channel)
+  (http-get
+   (format playlist_url channel) nil 'event nil "songs"))
 
-(defun play-fm ()
-  (get-play-list)
-  (play-fm)
-    (if (equal length 0)
-        (print "error:%s" data)
+(defun play-fm (&optional channel)
+  (unless channel (set 'channel default-channel))
+  (get-play-list channel)
+    (unless (equal length 0)
       (sit-for length)
-      (play-fm))
+      (get-play-list)
+      (emms-start))
     (interactive))
 
-(play-fm)
+(defun play-channel (channel)
+  (play-fm channel)
+  (interactive))
+
 (provide 'doubanfm)
