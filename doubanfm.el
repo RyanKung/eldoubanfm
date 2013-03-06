@@ -44,13 +44,25 @@
   (http-get
    (format playlist_url channel) nil 'event nil "songs"))
 
-(defun play-fm (&optional channel)
+(defun play-fm (&optional channel time)
+  (if time (sit-for time))
   (unless channel (set 'channel default-channel))
   (get-play-list channel)
     (unless (equal length 0)
       (sit-for length)
       (play-fm))
     (interactive))
+
+(defun pause-fm(&optional time) 
+  (if time (sit-for time))
+     (emms-stop)
+     (interactive))
+
+(defun continue-fm(&optional time)
+  (if time (sit-for time))
+   (emms-start)
+   (interactive))
+
 
 (defun play-channel (channel)
   (play-fm channel)
