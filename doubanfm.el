@@ -13,13 +13,18 @@
 (require 'json)
 (emms-standard)
 (emms-default-players)
-(defvar playlist_url
-  "http://api.douban.com/v2/fm/playlist?type=n&channel=%s&app_name=pldoubanfms&version=2&sid=0&apikey=Key0c57daf39b62cfbf250790dad2286f3d")
+(defvar host "http://api.douban.com")
+(defvar playlist_url "http://api.douban.com/v2/fm/playlist?type=n&channel=%s&app_name=pldoubanfms&version=2&sid=0&apikey=Key0c57daf39b62cfbf250790dad2286f3d")
+(defvar like_song_url (format "%s/v2/fm/like_song" host))
+(defvar unlike_song_url (format "%s/v2/fm/unlike_song" host))
 (defvar default-channel 27)
 (defvar length 0)
 
 (defun event (process message)
   (parse-data))
+
+(defun state (process message)
+  nil)
 
 (defun parse-data ()
   (set 'length 0)
@@ -44,7 +49,7 @@
   (http-get
    (format playlist_url channel) nil 'event nil "songs"))
 
-(defun play-fm (&optional channel time)
+(defun fm-play (&optional channel time)
   (if time (sit-for time))
   (unless channel (set 'channel default-channel))
   (get-play-list channel)
@@ -53,19 +58,29 @@
       (play-fm))
     (interactive))
 
-(defun pause-fm(&optional time) 
+(defun fm-pause(&optional time) 
   (if time (sit-for time))
      (emms-stop)
      (interactive))
 
-(defun continue-fm(&optional time)
+(defun fm-continue (&optional time)
   (if time (sit-for time))
    (emms-start)
    (interactive))
 
+(defun fm-next ()
+  (emms-next))
 
-(defun play-channel (channel)
+(defun fm-play-channel (channel)
   (play-fm channel)
+  (interactive))
+
+(defun fm-like ()
+  (http-get like_song_url nil 'state)
+  (interactive))
+
+(defun fm-un-like ()
+  (http-get unlike_song_url nil 'state)
   (interactive))
 
 (provide 'doubanfm)
