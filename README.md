@@ -7,7 +7,7 @@
     
 ```
 
-#COMMANDS SET
+#USAGE
 
 * M-x fm-play
 * M-x fm-play-channel
