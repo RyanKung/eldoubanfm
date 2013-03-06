@@ -4,10 +4,11 @@
 
 (dolist (path-list (list "./lib/"
                          "./lib/http-emacs"
-                         "./lib/emms-3.0"))
+                         "./lib/emms-3.0"
+                         "./lib/emacs-oauth"))
   (add-to-list 'load-path
                (expand-file-name path-list (file-name-directory load-file-name))))
-
+(require 'douban-oauth)
 (require 'emms-setup)
 (require 'http-get)
 (require 'json)
@@ -58,7 +59,7 @@
       (play-fm))
     (interactive))
 
-(defun fm-pause(&optional time) 
+(defun fm-pause (&optional time) 
   (if time (sit-for time))
      (emms-stop)
      (interactive))
