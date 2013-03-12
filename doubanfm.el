@@ -15,10 +15,10 @@
 (emms-standard)
 (emms-default-players)
 (defvar host "http://api.douban.com")
-(defvar playlist_url "http://api.douban.com/v2/fm/playlist?type=n&channel=%s&app_name=pldoubanfms&version=2&sid=0&apikey=Key0c57daf39b62cfbf250790dad2286f3d")
+(defvar playlist_url "http://api.douban.com/v2/fm/playlist?type=n&channel=%s&app_name=pldoubanfms&version=2&sid=0&apikey=0c57daf39b62cfbf250790dad2286f3d")
 (defvar like_song_url (format "%s/v2/fm/like_song" host))
 (defvar unlike_song_url (format "%s/v2/fm/unlike_song" host))
-(defvar default-channel 27)
+(defvar default-channel 1000657)
 (defvar length 0)
 
 (defun event (process message)
@@ -56,7 +56,7 @@
   (get-play-list channel)
     (unless (equal length 0)
       (sit-for length)
-      (play-fm))
+      (fm-play))
     (interactive))
 
 (defun fm-pause (&optional time) 
@@ -73,7 +73,7 @@
   (emms-next))
 
 (defun fm-play-channel (channel)
-  (play-fm channel)
+  (fm-play channel)
   (interactive))
 
 (defun fm-like ()
